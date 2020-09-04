@@ -27,6 +27,7 @@ public:
 	
 	Matrix4f( const Matrix4f& rm ); // copy constructor
 	Matrix4f& operator = ( const Matrix4f& rm ); // assignment operator
+	Matrix4f& operator/=(float d);
 	// no destructor necessary
 
 	const float& operator () ( int i, int j ) const;
@@ -63,6 +64,8 @@ public:
 
 	// ---- Utility ----
 	operator float* (); // automatic type conversion for GL
+	operator const float* () const; // automatic type conversion for GL
+	
 	void print();
 
 	static Matrix4f ones();

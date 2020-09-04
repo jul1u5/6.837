@@ -45,6 +45,14 @@ Matrix4f::Matrix4f( float m00, float m01, float m02, float m03,
 	m_elements[ 15 ] = m33;
 }
 
+Matrix4f& Matrix4f::operator/=(float d)
+{
+	for(int ii=0;ii<16;ii++){
+		m_elements[ii]/=d;
+	}
+	return *this;
+}
+
 Matrix4f::Matrix4f( const Vector4f& v0, const Vector4f& v1, const Vector4f& v2, const Vector4f& v3, bool setColumns )
 {
 	if( setColumns )
@@ -316,6 +324,12 @@ Matrix4f::operator float* ()
 {
 	return m_elements;
 }
+
+Matrix4f::operator const float* ()const
+{
+	return m_elements;
+}
+
 
 void Matrix4f::print()
 {
