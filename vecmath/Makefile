@@ -3,35 +3,30 @@ SHELL := bash
 .DELETE_ON_ERROR:
 
 CXX      ?= g++
-CXXFLAGS ?= -O3 -Wall -Wextra -pedantic -fPIC
+CPPFLAGS = -I ../include/vecmath
 
-SRCS = Vector2f.cpp Vector3f.cpp Vector4f.cpp Matrix2f.cpp Matrix3f.cpp Matrix4f.cpp Quat4f.cpp
-OBJS = $(SRCS:.cpp=.o)
+CXXFLAGS ?= -O3 -fPIC -Wall -Wextra -pedantic
+LDFLAGS   = -shared
 
-INCDIR ?= ../include/vecmath
-LIBDIR ?= ../lib/vecmath
+SRCS := $(wildcard *.cpp)
+OBJS := $(SRCS:.cpp=.o)
 
-MAJOR    = 1
-MINOR    = 1
-VERSION := $(MAJOR):$(MINOR)
+NAME    := $(shell basename $(CURDIR))
+SNAME    = lib$(NAME).a
+DNAME    = lib$(NAME).so
 
-all: headers static shared
+LIBDIR ?= ../lib/$(NAME)
 
-static: $(OBJS)
+all: $(SNAME) $(DNAME)
+
+$(SNAME): $(OBJS)
 	mkdir -p $(LIBDIR)
-	ar rcs $(LIBDIR)/libvecmath.a $(OBJS)
+	ar rcs $(LIBDIR)/$@ $^
 
-shared: $(OBJS)
-	$(CXX) -shared -Wl,-soname,libvecmath.so.$(MAJOR) -o $(LIBDIR)/libvecmath.so.$(VERSION) $(OBJS)
-	cd $(LIBDIR)
-	ln -sf libvecmath.so.$(VERSION) $(LIBDIR)/libvecmath.so
-	ln -sf libvecmath.so.$(VERSION) $(LIBDIR)/libvecmath.so.$(MAJOR)
-
-headers:
-	mkdir -p $(INCDIR)
-	cp *.h $(INCDIR)
+$(DNAME): $(OBJS)
+	$(CXX) $(LDFLAGS) -Wl,-soname,$@ -o $(LIBDIR)/$@ $^
 
 .PHONY: clean
 clean:
-	rm -f $(OBJS)
-	rm -rf $(INCDIR) $(LIBDIR)
+	$(RM) $(OBJS)
+	$(RM) -r $(LIBDIR)

@@ -25,14 +25,5 @@ all: $(SRCS) $(TARGET)
 $(TARGET): $(OBJS)
 	$(CXX) $^ -o $@ $(LDFLAGS) $(LDLIBS)
 
-depend:
-	makedepend $(CPPFLAGS) -Y $(SRCS)
-
 clean:
-	rm -f $(OBJS) $(TARGET)
-# DO NOT DELETE
-
-main.o: ../include/vecmath/vecmath.h ../include/vecmath/Matrix2f.h
-main.o: ../include/vecmath/Matrix3f.h ../include/vecmath/Matrix4f.h
-main.o: ../include/vecmath/Quat4f.h ../include/vecmath/Vector2f.h
-main.o: ../include/vecmath/Vector3f.h ../include/vecmath/Vector4f.h
+	$(RM) $(OBJS) $(TARGET)
