@@ -1,14 +1,4 @@
 {
   "nixEnvSelector.nixShellConfig": "${workspaceRoot}/shell.nix",
-  "cSpell.enabled": false,
-  "cpplint.cpplintPath": "cpplint",
-  "cpplint.excludes": [
-    "include",
-    "vecmath"
-  ],
-  "cpplint.filters": [
-    "-legal/copyright",
-    "-build/namespaces",
-    "-whitespace/ending_newline",
-  ]
+  "cSpell.enabled": false
 }

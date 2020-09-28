@@ -19,7 +19,7 @@ vector<Vector3f> vecv;
 vector<Vector3f> vecn;
 
 // This is the list of faces (indices into vecv and vecn)
-vector<vector<unsigned> > vecf;
+vector<vector<unsigned>> vecf;
 
 // You will need more global variables to implement color and position changes
 int color = 0;
@@ -28,12 +28,12 @@ GLfloat Lt0pos[] = {1.0f, 1.0f, 5.0f, 0.0f};
 
 // These are convenience functions which allow us to call OpenGL
 // methods on Vec3d objects
-inline void glVertex(const Vector3f& a) { glVertex3fv(a); }
+inline void glVertex(const Vector3f &a) { glVertex3fv(a); }
 
-inline void glNormal(const Vector3f& a) { glNormal3fv(a); }
+inline void glNormal(const Vector3f &a) { glNormal3fv(a); }
 
 void drawObject() {
-    for (const auto& face : vecf) {
+    for (const auto &face : vecf) {
         auto a = face[0];
         auto c = face[1];
         auto d = face[2];
@@ -59,7 +59,8 @@ float angle = 0;
 const float rotation_speed = 1;
 
 void updateFunc(int value) {
-    if (value != rotation_request) return;
+    if (value != rotation_request)
+        return;
 
     glutTimerFunc(1000 / 60, updateFunc, value);
 
@@ -71,30 +72,29 @@ void updateFunc(int value) {
 // This function is called whenever a "Normal" key press is received.
 void keyboardFunc(unsigned char key, int x, int y) {
     switch (key) {
-        case 27:  // Escape key
-            exit(0);
+    case 27: // Escape key
+        exit(0);
 
-            break;
-        case 'c':
-            // add code to change color here
-            color++;
-            cout << "Color changed " << color << "." << endl;
+        break;
+    case 'c':
+        // add code to change color here
+        color++;
+        cout << "Color changed " << color << "." << endl;
 
-            break;
-        case 'r':
-            is_rotating = !is_rotating;
-            if (is_rotating) {
-                updateFunc(rotation_request);
-            } else {
-                rotation_request++;
-            }
+        break;
+    case 'r':
+        is_rotating = !is_rotating;
+        if (is_rotating) {
+            updateFunc(rotation_request);
+        } else {
+            rotation_request++;
+        }
 
-            cout << (is_rotating ? "Started" : "Stopped") << " rotating."
-                 << endl;
+        cout << (is_rotating ? "Started" : "Stopped") << " rotating." << endl;
 
-            break;
-        default:
-            cout << "Unhandled key press " << key << "." << endl;
+        break;
+    default:
+        cout << "Unhandled key press " << key << "." << endl;
     }
 
     // this will refresh the screen so that the user sees the color change
@@ -105,26 +105,26 @@ void keyboardFunc(unsigned char key, int x, int y) {
 // Right now, it's handling the arrow keys.
 void specialFunc(int key, int x, int y) {
     switch (key) {
-        case GLUT_KEY_UP:
-            Lt0pos[1] += 0.5;
-            // add code to change light position
-            cout << "Up arrow pressed" << endl;
-            break;
-        case GLUT_KEY_DOWN:
-            Lt0pos[1] -= 0.5;
-            // add code to change light position
-            cout << "Down arrow pressed" << endl;
-            break;
-        case GLUT_KEY_LEFT:
-            Lt0pos[0] -= 0.5;
-            // add code to change light position
-            cout << "Left arrow pressed" << endl;
-            break;
-        case GLUT_KEY_RIGHT:
-            Lt0pos[0] += 0.5;
-            // add code to change light position
-            cout << "Right arrow pressed" << endl;
-            break;
+    case GLUT_KEY_UP:
+        Lt0pos[1] += 0.5;
+        // add code to change light position
+        cout << "Up arrow pressed" << endl;
+        break;
+    case GLUT_KEY_DOWN:
+        Lt0pos[1] -= 0.5;
+        // add code to change light position
+        cout << "Down arrow pressed" << endl;
+        break;
+    case GLUT_KEY_LEFT:
+        Lt0pos[0] -= 0.5;
+        // add code to change light position
+        cout << "Left arrow pressed" << endl;
+        break;
+    case GLUT_KEY_RIGHT:
+        Lt0pos[0] += 0.5;
+        // add code to change light position
+        cout << "Right arrow pressed" << endl;
+        break;
     }
 
     // this will refresh the screen so that the user sees the light position
@@ -137,8 +137,8 @@ void drawScene() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     // Rotate the image
-    glMatrixMode(GL_MODELVIEW);  // Current matrix affects objects positions
-    glLoadIdentity();            // Initialize to the identity
+    glMatrixMode(GL_MODELVIEW); // Current matrix affects objects positions
+    glLoadIdentity();           // Initialize to the identity
 
     // Position the camera at [0,0,5], looking at [0,0,0],
     // with [0,1,0] as the up direction.
@@ -185,9 +185,9 @@ void drawScene() {
 
 // Initialize OpenGL's rendering modes
 void initRendering() {
-    glEnable(GL_DEPTH_TEST);  // Depth testing must be turned on
-    glEnable(GL_LIGHTING);    // Enable lighting calculations
-    glEnable(GL_LIGHT0);      // Turn on light #0.
+    glEnable(GL_DEPTH_TEST); // Depth testing must be turned on
+    glEnable(GL_LIGHTING);   // Enable lighting calculations
+    glEnable(GL_LIGHT0);     // Turn on light #0.
 }
 
 // Called when the window is resized
@@ -207,11 +207,12 @@ void reshapeFunc(int w, int h) {
     gluPerspective(50, 1, 1, 100);
 }
 
-void loadInput(istream& stream) {
+void loadInput(istream &stream) {
     string line;
 
     while (getline(stream, line)) {
-        if (line == "") continue;
+        if (line == "")
+            continue;
 
         istringstream words(line);
 
@@ -248,7 +249,7 @@ void loadInput(istream& stream) {
 
 // Main routine.
 // Set up OpenGL, define the callbacks and start the main loop
-int main(int argc, char** argv) {
+int main(int argc, char **argv) {
     loadInput(cin);
 
     glutInit(&argc, argv);
@@ -265,8 +266,8 @@ int main(int argc, char** argv) {
     initRendering();
 
     // Set up callback functions for key presses
-    glutKeyboardFunc(keyboardFunc);  // Handles "normal" ascii symbols
-    glutSpecialFunc(specialFunc);    // Handles "special" keyboard keys
+    glutKeyboardFunc(keyboardFunc); // Handles "normal" ascii symbols
+    glutSpecialFunc(specialFunc);   // Handles "special" keyboard keys
 
     // Set up the callback function for resizing windows
     glutReshapeFunc(reshapeFunc);
@@ -277,5 +278,5 @@ int main(int argc, char** argv) {
     // Start the main loop.  glutMainLoop never returns.
     glutMainLoop();
 
-    return 0;  // This line is never reached.
+    return 0; // This line is never reached.
 }

@@ -1,14 +1,15 @@
-# Assignment 0 ([PDF])
+# Assignment 0
+
+[Handout PDF]
 
 ## Compile
 
-```bash
-# Compile vecmath library
-$ cd ../vecmath
-$ make
+> Make sure to have compiled [`vecmath`](../vecmath/README.md) first.
 
-# Compile main.cpp
-$ cd -
+```bash
+# To generate compile_commands.json for clangd
+$ bear make
+# Otherwise
 $ make
 ```
 
@@ -20,4 +21,4 @@ $ ./a0 < torus.obj
 $ ./a0 < garg.obj
 ```
 
-[PDF]: https://ocw.mit.edu/courses/electrical-engineering-and-computer-science/6-837-computer-graphics-fall-2012/assignments/MIT6_837F12_assn0.pdf
+[Handout PDF]: https://ocw.mit.edu/courses/electrical-engineering-and-computer-science/6-837-computer-graphics-fall-2012/assignments/MIT6_837F12_assn0.pdf

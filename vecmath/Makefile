@@ -2,26 +2,25 @@ SHELL := bash
 .SHELLFLAGS := -eu -o pipefail -c
 .DELETE_ON_ERROR:
 
-CXX      ?= g++
-CPPFLAGS = -I ../include/vecmath
-
+CXX      ?= clang++
 CXXFLAGS ?= -O3 -fPIC -Wall -Wextra -pedantic
+
 LDFLAGS   = -shared
 
 SRCS := $(wildcard *.cpp)
 OBJS := $(SRCS:.cpp=.o)
 
+LIBDIR ?= ../lib/$(NAME)
+
 NAME    := $(shell basename $(CURDIR))
 SNAME    = lib$(NAME).a
 DNAME    = lib$(NAME).so
-
-LIBDIR ?= ../lib/$(NAME)
 
 all: $(SNAME) $(DNAME)
 
 $(SNAME): $(OBJS)
 	mkdir -p $(LIBDIR)
-	ar rcs $(LIBDIR)/$@ $^
+	ar -rs $(LIBDIR)/$@ $^
 
 $(DNAME): $(OBJS)
 	$(CXX) $(LDFLAGS) -Wl,-soname,$@ -o $(LIBDIR)/$@ $^
