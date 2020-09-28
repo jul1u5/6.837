@@ -1,4 +1,10 @@
 #include "curve.h"
+
+#include <algorithm>
+#include <array>
+#include <cmath>
+#include <iostream>
+
 #include "extra.h"
 #ifdef WIN32
 #include <windows.h>
@@ -13,8 +19,18 @@ inline bool approx(const Vector3f &lhs, const Vector3f &rhs) {
     const float eps = 1e-8f;
     return (lhs - rhs).absSquared() < eps;
 }
-
 } // namespace
+
+const Vector3f &orthogonal(const Vector3f &v) {
+    const array<Vector3f, 3> &candidates{Vector3f(0, v.z(), -v.y()),
+                                         Vector3f(-v.z(), 0, v.x()),
+                                         Vector3f(-v.y(), v.x(), 0)};
+
+    return *max_element(candidates.begin(), candidates.end(),
+                        [](const Vector3f &x, const Vector3f &y) {
+                            return x.absSquared() < y.absSquared();
+                        });
+}
 
 Curve evalBezier(const vector<Vector3f> &P, unsigned steps) {
     // Check
@@ -48,11 +64,49 @@ Curve evalBezier(const vector<Vector3f> &P, unsigned steps) {
         cerr << "\t>>> " << P[i] << endl;
     }
 
-    cerr << "\t>>> Steps (type steps): " << steps << endl;
-    cerr << "\t>>> Returning empty curve." << endl;
+    auto q = [&P](float t) {
+        return pow(1 - t, 3) * P[0] +           //
+               3 * t * pow(1 - t, 2) * P[1] +   //
+               3 * pow(t, 2) * (1 - t) * P[2] + //
+               pow(t, 3) * P[3];
+    };
 
-    // Right now this will just return this empty curve.
-    return Curve();
+    auto dq = [&P](float t) {
+        return -3 * pow(1 - t, 2) * P[0] +                    //
+               (3 * pow(1 - t, 2) - 6 * t * (1 - t)) * P[1] + //
+               (6 * t * (1 - t) - 3 * pow(t, 2)) * P[2] +     //
+               3 * pow(t, 2) * P[3];
+    };
+
+    Curve curve;
+    curve.reserve(steps + 1);
+
+    for (unsigned i = 0; i <= steps; i++) {
+        auto t = static_cast<float>(i) / steps;
+
+        CurvePoint p;
+
+        p.V = q(t);
+        p.T = dq(t).normalized();
+
+        const auto &prev_B = i == 0 ? orthogonal(p.T) : curve[i - 1].B;
+        prev_B.print();
+        if (i > 0) {
+            curve[i - 1].B.print();
+        }
+
+        p.N = Vector3f::cross(prev_B, p.T).normalized();
+        p.B = Vector3f::cross(p.T, p.N).normalized();
+        p.T.print();
+        p.N.print();
+        Vector3f::cross(prev_B, p.T).print();
+
+        curve.emplace_back(p);
+    }
+
+    cerr << "\t>>> Steps (type steps): " << steps << endl;
+
+    return curve;
 }
 
 Curve evalBspline(const vector<Vector3f> &P, unsigned steps) {
@@ -93,7 +147,7 @@ Curve evalCircle(float radius, unsigned steps) {
     // Fill it in counterclockwise
     for (unsigned i = 0; i <= steps; ++i) {
         // step from 0 to 2pi
-        float t = 2.0f * M_PI * float(i) / steps;
+        float t = 2.0f * M_PI * static_cast<float>(i) / steps;
 
         // Initialize position
         // We're pivoting counterclockwise around the y-axis
