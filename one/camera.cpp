@@ -1,6 +1,9 @@
 #include "camera.h"
+
 #include "extra.h"
+
 #include <GL/glu.h>
+
 #include <cmath>
 #include <iostream>
 

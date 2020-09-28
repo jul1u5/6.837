@@ -1,9 +1,10 @@
+#include "Vector3f.h"
+
+#include "Vector2f.h"
+
 #include <cmath>
 #include <cstdio>
 #include <cstdlib>
-
-#include "Vector2f.h"
-#include "Vector3f.h"
 
 //////////////////////////////////////////////////////////////////////////
 // Public

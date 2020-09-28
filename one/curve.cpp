@@ -1,15 +1,17 @@
 #include "curve.h"
 
-#include <algorithm>
-#include <array>
-#include <cmath>
-#include <iostream>
-
 #include "extra.h"
+
 #ifdef WIN32
 #include <windows.h>
 #endif
+
 #include <GL/gl.h>
+
+#include <algorithm>
+#include <array>
+#include <iostream>
+
 using namespace std;
 
 namespace {
@@ -90,16 +92,9 @@ Curve evalBezier(const vector<Vector3f> &P, unsigned steps) {
         p.T = dq(t).normalized();
 
         const auto &prev_B = i == 0 ? orthogonal(p.T) : curve[i - 1].B;
-        prev_B.print();
-        if (i > 0) {
-            curve[i - 1].B.print();
-        }
 
         p.N = Vector3f::cross(prev_B, p.T).normalized();
         p.B = Vector3f::cross(p.T, p.N).normalized();
-        p.T.print();
-        p.N.print();
-        Vector3f::cross(prev_B, p.T).print();
 
         curve.emplace_back(p);
     }

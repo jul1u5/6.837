@@ -4,15 +4,13 @@ SHELL := bash
 
 TARGET    = a1
 
-CPPFLAGS = -I ../vecmath
+CPPFLAGS = -I../vecmath
 
 CXX      ?= clang++
 CXXFLAGS ?= -O2 -Wall -pedantic -g
 
-LDFLAGS = -L ../lib/vecmath
-LDLIBS  = -lglut -lGL -lGLU
-
-LDLIBS += -l:libvecmath.a
+LDFLAGS = -L../lib/vecmath
+LDLIBS  = -lglut -lGL -lGLU -l:libvecmath.a
 
 SRCS      = $(wildcard *.cpp)
 OBJS      = $(SRCS:.cpp=.o)

@@ -1,11 +1,11 @@
 #ifndef CURVE_H
 #define CURVE_H
 
+#include "tuple.h"
+
 #include <vecmath.h>
 
 #include <vector>
-
-#include "tuple.h"
 
 // The CurvePoint object stores information about a point on a curve
 // after it has been tesselated: the vertex (V), the tangent (T), the

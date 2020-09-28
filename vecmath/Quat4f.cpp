@@ -1,10 +1,11 @@
 #define _USE_MATH_DEFINES
-#include <cmath>
-#include <cstdio>
-
 #include "Quat4f.h"
+
 #include "Vector3f.h"
 #include "Vector4f.h"
+
+#include <cmath>
+#include <cstdio>
 
 //////////////////////////////////////////////////////////////////////////
 // Public

@@ -10,9 +10,10 @@ LDFLAGS   = -shared
 SRCS := $(wildcard *.cpp)
 OBJS := $(SRCS:.cpp=.o)
 
+NAME    := $(shell basename $(CURDIR))
+
 LIBDIR ?= ../lib/$(NAME)
 
-NAME    := $(shell basename $(CURDIR))
 SNAME    = lib$(NAME).a
 DNAME    = lib$(NAME).so
 
@@ -23,7 +24,7 @@ $(SNAME): $(OBJS)
 	ar -rs $(LIBDIR)/$@ $^
 
 $(DNAME): $(OBJS)
-	$(CXX) $(LDFLAGS) -Wl,-soname,$@ -o $(LIBDIR)/$@ $^
+	$(CXX) $(LDFLAGS) -o $(LIBDIR)/$@ $^
 
 .PHONY: clean
 clean:

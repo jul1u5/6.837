@@ -1,10 +1,11 @@
-#include <cmath>
-#include <cstdio>
-#include <cstdlib>
+#include "Vector4f.h"
 
 #include "Vector2f.h"
 #include "Vector3f.h"
-#include "Vector4f.h"
+
+#include <cmath>
+#include <cstdio>
+#include <cstdlib>
 
 Vector4f::Vector4f(float f) {
     m_elements[0] = f;
