@@ -1,5 +1,7 @@
 #include "curve.h"
 
+#include "Matrix4f.h"
+#include "Vector3f.h"
 #include "extra.h"
 
 #ifdef WIN32
@@ -11,6 +13,7 @@
 #include <algorithm>
 #include <array>
 #include <iostream>
+#include <optional>
 
 using namespace std;
 
@@ -21,9 +24,24 @@ inline bool approx(const Vector3f &lhs, const Vector3f &rhs) {
     const float eps = 1e-8f;
     return (lhs - rhs).absSquared() < eps;
 }
+
+const Matrix4f bezierBasis{
+    1, -3, 3,  -1, //
+    0, 3,  -6, 3,  //
+    0, 0,  3,  -3, //
+    0, 0,  0,  1   //
+};
+
+const Matrix4f bsplineBasis = Matrix4f{
+    1, -3, 3,  -1, //
+    4, 0,  -6, 3,  //
+    1, 3,  3,  -3, //
+    0, 0,  0,  1   //
+} /= 6;
+
 } // namespace
 
-const Vector3f &orthogonal(const Vector3f &v) {
+Vector3f orthogonal(const Vector3f &v) {
     const array<Vector3f, 3> &candidates{Vector3f(0, v.z(), -v.y()),
                                          Vector3f(-v.z(), 0, v.x()),
                                          Vector3f(-v.y(), v.x(), 0)};
@@ -34,7 +52,26 @@ const Vector3f &orthogonal(const Vector3f &v) {
                         });
 }
 
-Curve evalBezier(const vector<Vector3f> &P, unsigned steps) {
+Matrix4f points2Matrix(const vector<Vector3f> &points) {
+    return {
+        {points[0], 0},
+        {points[1], 0},
+        {points[2], 0},
+        {points[3], 0},
+    };
+}
+
+vector<Vector3f> matrix2Points(const Matrix4f &matrix) {
+    return {
+        matrix.getCol(0).xyz(),
+        matrix.getCol(1).xyz(),
+        matrix.getCol(2).xyz(),
+        matrix.getCol(3).xyz(),
+    };
+}
+
+Curve evalBezier(const vector<Vector3f> &P, unsigned steps,
+                 const optional<Vector3f> &binormal) {
     // Check
     if (P.size() < 4 || P.size() % 3 != 1) {
         cerr << "evalBezier must be called with 3n+1 control points." << endl;
@@ -66,40 +103,36 @@ Curve evalBezier(const vector<Vector3f> &P, unsigned steps) {
         cerr << "\t>>> " << P[i] << endl;
     }
 
-    auto q = [&P](float t) {
-        return pow(1 - t, 3) * P[0] +           //
-               3 * t * pow(1 - t, 2) * P[1] +   //
-               3 * pow(t, 2) * (1 - t) * P[2] + //
-               pow(t, 3) * P[3];
-    };
-
-    auto dq = [&P](float t) {
-        return -3 * pow(1 - t, 2) * P[0] +                    //
-               (3 * pow(1 - t, 2) - 6 * t * (1 - t)) * P[1] + //
-               (6 * t * (1 - t) - 3 * pow(t, 2)) * P[2] +     //
-               3 * pow(t, 2) * P[3];
-    };
+    cerr << "\t>>> Steps (type steps): " << steps << endl;
 
     Curve curve;
-    curve.reserve(steps + 1);
+    curve.reserve((P.size() - 1) / 3 * (steps + 1));
 
-    for (unsigned i = 0; i <= steps; i++) {
-        auto t = static_cast<float>(i) / steps;
+    for (unsigned i = 0; i < P.size() - 1; i += 3) {
+        auto controlPoints =
+            vector<Vector3f>(P.cbegin() + i, P.cbegin() + i + 4);
+        auto gb = points2Matrix(controlPoints) * bezierBasis;
 
-        CurvePoint p;
+        for (unsigned step = 0; step <= steps; step++) {
+            auto t = static_cast<float>(step) / steps;
 
-        p.V = q(t);
-        p.T = dq(t).normalized();
+            Vector4f powerBasis{1, t, (float)pow(t, 2), (float)pow(t, 3)};
+            Vector4f dPowerBasis{0, 1, 2 * t, 3 * (float)pow(t, 2)};
 
-        const auto &prev_B = i == 0 ? orthogonal(p.T) : curve[i - 1].B;
+            CurvePoint p;
 
-        p.N = Vector3f::cross(prev_B, p.T).normalized();
-        p.B = Vector3f::cross(p.T, p.N).normalized();
+            p.V = (gb * powerBasis).xyz();
+            p.T = (gb * dPowerBasis).xyz().normalized();
 
-        curve.emplace_back(p);
+            auto prev_B = curve.empty() ? binormal.value_or(orthogonal(p.T))
+                                        : curve.back().B;
+
+            p.N = Vector3f::cross(prev_B, p.T).normalized();
+            p.B = Vector3f::cross(p.T, p.N).normalized();
+
+            curve.push_back(p);
+        }
     }
-
-    cerr << "\t>>> Steps (type steps): " << steps << endl;
 
     return curve;
 }
@@ -117,7 +150,7 @@ Curve evalBspline(const vector<Vector3f> &P, unsigned steps) {
     // basis from B-spline to Bezier.  That way, you can just call
     // your evalBezier function.
 
-    cerr << "\t>>> evalBSpline has been called with the following input:"
+    cerr << "\t>>> evalBspline has been called with the following input:"
          << endl;
 
     cerr << "\t>>> Control points (type vector< Vector3f >): " << endl;
@@ -126,10 +159,25 @@ Curve evalBspline(const vector<Vector3f> &P, unsigned steps) {
     }
 
     cerr << "\t>>> Steps (type steps): " << steps << endl;
-    cerr << "\t>>> Returning empty curve." << endl;
 
-    // Return an empty curve right now.
-    return Curve();
+    auto changeOfBasis = bsplineBasis * bezierBasis.inverse();
+
+    Curve curve;
+    curve.reserve((P.size() - 3) * (steps + 1));
+
+    for (unsigned i = 0; i < P.size() - 3; i++) {
+        auto controlPoints =
+            vector<Vector3f>(P.cbegin() + i, P.cbegin() + i + 4);
+
+        auto geometry = points2Matrix(controlPoints) * changeOfBasis;
+        auto segment =
+            evalBezier(matrix2Points(geometry), steps,
+                       curve.empty() ? nullopt : make_optional(curve.back().B));
+
+        curve.insert(curve.end(), segment.begin(), segment.end());
+    }
+
+    return curve;
 }
 
 Curve evalCircle(float radius, unsigned steps) {
