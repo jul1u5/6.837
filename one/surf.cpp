@@ -1,6 +1,9 @@
 #include "surf.h"
 
+#include "Vector3f.h"
 #include "extra.h"
+
+#include <cmath>
 
 using namespace std;
 
@@ -26,11 +29,30 @@ Surface makeSurfRev(const Curve &profile, unsigned steps) {
         exit(0);
     }
 
-    // TODO: Here you should build the surface.  See surf.h for details.
+    auto loc = [profileSize = profile.size()](int u, int v) {
+        return u * profileSize + v;
+    };
 
-    cerr << "\t>>> makeSurfRev called (but not implemented).\n\t>>> Returning "
-            "empty surface."
-         << endl;
+    for (unsigned v = 0; v <= steps; v++) {
+        auto angle = 2 * M_PI * static_cast<float>(v) / steps;
+        // TODO: Rotation should probably be calculated with 4d matrix
+        auto rotation = Matrix3f::rotateY(angle);
+
+        for (unsigned u = 0; u < profile.size(); u++) {
+            auto q = profile[u];
+            surface.VV.emplace_back(rotation * q.V);
+            surface.VN.emplace_back(rotation * -q.N);
+
+            if (u > 0 && v > 0) {
+                surface.VF.emplace_back(loc(v, u - 1),     //
+                                        loc(v - 1, u - 1), //
+                                        loc(v - 1, u));
+                surface.VF.emplace_back(loc(v - 1, u), //
+                                        loc(v, u),     //
+                                        loc(v, u - 1));
+            }
+        }
+    }
 
     return surface;
 }

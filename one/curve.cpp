@@ -41,17 +41,6 @@ const Matrix4f bsplineBasis = Matrix4f{
 
 } // namespace
 
-Vector3f orthogonal(const Vector3f &v) {
-    const array<Vector3f, 3> &candidates{Vector3f(0, v.z(), -v.y()),
-                                         Vector3f(-v.z(), 0, v.x()),
-                                         Vector3f(-v.y(), v.x(), 0)};
-
-    return *max_element(candidates.begin(), candidates.end(),
-                        [](const Vector3f &x, const Vector3f &y) {
-                            return x.absSquared() < y.absSquared();
-                        });
-}
-
 Matrix4f points2Matrix(const vector<Vector3f> &points) {
     return {
         {points[0], 0},
@@ -124,7 +113,7 @@ Curve evalBezier(const vector<Vector3f> &P, unsigned steps,
             p.V = (gb * powerBasis).xyz();
             p.T = (gb * dPowerBasis).xyz().normalized();
 
-            auto prev_B = curve.empty() ? binormal.value_or(orthogonal(p.T))
+            auto prev_B = curve.empty() ? binormal.value_or(Vector3f(0, 0, 1))
                                         : curve.back().B;
 
             p.N = Vector3f::cross(prev_B, p.T).normalized();
@@ -160,7 +149,7 @@ Curve evalBspline(const vector<Vector3f> &P, unsigned steps) {
 
     cerr << "\t>>> Steps (type steps): " << steps << endl;
 
-    auto changeOfBasis = bsplineBasis * bezierBasis.inverse();
+    static auto changeOfBasis = bsplineBasis * bezierBasis.inverse();
 
     Curve curve;
     curve.reserve((P.size() - 3) * (steps + 1));

@@ -7,7 +7,7 @@ TARGET    = a1
 CPPFLAGS = -I../vecmath
 
 CXX      ?= clang++
-CXXFLAGS ?= -std=c++20 -O2 -Wall -pedantic -g
+CXXFLAGS ?= -std=c++17 -O2 -Wall -pedantic -g
 
 LDFLAGS = -L../lib/vecmath
 LDLIBS  = -lglut -lGL -lGLU -l:libvecmath.a
