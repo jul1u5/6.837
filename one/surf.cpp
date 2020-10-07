@@ -33,23 +33,23 @@ Surface makeSurfRev(const Curve &profile, unsigned steps) {
         return u * profileSize + v;
     };
 
-    for (unsigned v = 0; v <= steps; v++) {
-        auto angle = 2 * M_PI * static_cast<float>(v) / steps;
+    for (unsigned u = 0; u <= steps; u++) {
+        auto angle = 2 * M_PI * static_cast<float>(u) / steps;
         // TODO: Rotation should probably be calculated with 4d matrix
         auto rotation = Matrix3f::rotateY(angle);
 
-        for (unsigned u = 0; u < profile.size(); u++) {
-            auto q = profile[u];
+        for (unsigned v = 0; v < profile.size(); v++) {
+            auto q = profile[v];
             surface.VV.emplace_back(rotation * q.V);
             surface.VN.emplace_back(rotation * -q.N);
 
             if (u > 0 && v > 0) {
-                surface.VF.emplace_back(loc(v, u - 1),     //
-                                        loc(v - 1, u - 1), //
-                                        loc(v - 1, u));
-                surface.VF.emplace_back(loc(v - 1, u), //
-                                        loc(v, u),     //
-                                        loc(v, u - 1));
+                surface.VF.emplace_back(loc(u, v - 1),     //
+                                        loc(u - 1, v - 1), //
+                                        loc(u - 1, v));
+                surface.VF.emplace_back(loc(u - 1, v), //
+                                        loc(u, v),     //
+                                        loc(u, v - 1));
             }
         }
     }
