@@ -15,7 +15,7 @@ LDLIBS  = -lglut -lGL -lGLU -l:libvecmath.a
 SRCS      = $(wildcard *.cpp)
 OBJS      = $(SRCS:.cpp=.o)
 
-all: $(SRCS) $(TARGET)
+all: $(TARGET)
 
 $(TARGET): $(OBJS)
 	$(CXX) $^ -o $@ $(LDFLAGS) $(LDLIBS)

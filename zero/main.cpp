@@ -223,12 +223,10 @@ void loadInput(istream &stream) {
             float x, y, z;
             words >> x >> y >> z;
             vecv.push_back(Vector3f(x, y, z));
-
         } else if (type == "vn") {
             float x, y, z;
             words >> x >> y >> z;
             vecn.push_back(Vector3f(x, y, z));
-
         } else if (type == "f") {
             string abc, def, ghi;
             words >> abc >> def >> ghi;

@@ -1,6 +1,9 @@
 #include "surf.h"
 
+#include "Matrix4f.h"
+#include "Quat4f.h"
 #include "Vector3f.h"
+#include "Vector4f.h"
 #include "extra.h"
 
 #include <cmath>
@@ -21,6 +24,26 @@ static bool checkFlat(const Curve &profile) {
 }
 } // namespace
 
+vector<Tup3u> makeFaces(int x, int y) {
+    auto loc = [y](int u, int v) { return u * y + v; };
+
+    vector<Tup3u> faces;
+    faces.reserve(2 * (x - 1) * (y - 1));
+
+    for (unsigned u = 1; u < x; u++) {
+        for (unsigned v = 1; v < y; v++) {
+            faces.emplace_back(loc(u, v - 1),     //
+                               loc(u - 1, v - 1), //
+                               loc(u - 1, v));
+            faces.emplace_back(loc(u - 1, v), //
+                               loc(u, v),     //
+                               loc(u, v - 1));
+        }
+    }
+
+    return faces;
+}
+
 Surface makeSurfRev(const Curve &profile, unsigned steps) {
     Surface surface;
 
@@ -29,30 +52,18 @@ Surface makeSurfRev(const Curve &profile, unsigned steps) {
         exit(0);
     }
 
-    auto loc = [profileSize = profile.size()](int u, int v) {
-        return u * profileSize + v;
-    };
-
     for (unsigned u = 0; u <= steps; u++) {
         auto angle = 2 * M_PI * static_cast<float>(u) / steps;
-        // TODO: Rotation should probably be calculated with 4d matrix
         auto rotation = Matrix3f::rotateY(angle);
 
         for (unsigned v = 0; v < profile.size(); v++) {
             auto q = profile[v];
             surface.VV.emplace_back(rotation * q.V);
             surface.VN.emplace_back(rotation * -q.N);
-
-            if (u > 0 && v > 0) {
-                surface.VF.emplace_back(loc(u, v - 1),     //
-                                        loc(u - 1, v - 1), //
-                                        loc(u - 1, v));
-                surface.VF.emplace_back(loc(u - 1, v), //
-                                        loc(u, v),     //
-                                        loc(u, v - 1));
-            }
         }
     }
+
+    surface.VF = makeFaces(steps, profile.size());
 
     return surface;
 }
@@ -65,11 +76,24 @@ Surface makeGenCyl(const Curve &profile, const Curve &sweep) {
         exit(0);
     }
 
-    // TODO: Here you should build the surface.  See surf.h for details.
+    for (unsigned u = 0; u < sweep.size(); u++) {
+        Matrix4f coord{
+            {sweep[u].N, 0},
+            {sweep[u].B, 0},
+            {sweep[u].T, 0},
+            {sweep[u].V, 1},
+        };
 
-    cerr << "\t>>> makeGenCyl called (but not implemented).\n\t>>> Returning "
-            "empty surface."
-         << endl;
+        auto normalRotation =
+            coord.getSubmatrix3x3(0, 0).transposed().inverse();
+
+        for (unsigned v = 0; v < profile.size(); v++) {
+            surface.VV.emplace_back((coord * Vector4f{profile[v].V, 1}).xyz());
+            surface.VN.emplace_back(normalRotation * -profile[v].N);
+        }
+    }
+
+    surface.VF = makeFaces(sweep.size(), profile.size());
 
     return surface;
 }
