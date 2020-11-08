@@ -12,6 +12,7 @@
 
 #include <algorithm>
 #include <array>
+#include <cmath>
 #include <iostream>
 #include <optional>
 
@@ -23,6 +24,10 @@ namespace {
 inline bool approx(const Vector3f &lhs, const Vector3f &rhs) {
     const float eps = 1e-8f;
     return (lhs - rhs).absSquared() < eps;
+}
+
+inline float angle(const Vector3f &lhs, const Vector3f &rhs) {
+    return acos(Vector3f::dot(lhs, rhs) / (lhs.abs() * rhs.abs()));
 }
 
 const Matrix4f bezierBasis{
@@ -164,6 +169,25 @@ Curve evalBspline(const vector<Vector3f> &P, unsigned steps) {
                        curve.empty() ? nullopt : make_optional(curve.back().B));
 
         curve.insert(curve.end(), segment.begin(), segment.end());
+    }
+
+    auto &start = curve.front();
+    auto &end = curve.back();
+
+    // Check if the curve is closed and make sure the vectors at the start match
+    // with the vectors at the end
+    if (approx(start.V, end.V) && !approx(start.N, end.N)) {
+        auto diff = angle(start.N, end.N);
+
+        for (unsigned i = 0; i < curve.size(); i++) {
+            auto &p = curve[i];
+            auto rotation = Matrix3f::rotation(p.T, -diff * i / curve.size());
+
+            p.N = rotation * p.N;
+            p.B = rotation * p.B;
+        }
+
+        end = start;
     }
 
     return curve;
