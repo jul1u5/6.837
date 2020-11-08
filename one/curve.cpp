@@ -72,7 +72,6 @@ Curve evalBezier(const vector<Vector3f> &P, unsigned steps,
         exit(0);
     }
 
-    // TODO:
     // You should implement this function so that it returns a Curve
     // (e.g., a vector< CurvePoint >).  The variable "steps" tells you
     // the number of points to generate on each piece of the spline.
@@ -139,7 +138,6 @@ Curve evalBspline(const vector<Vector3f> &P, unsigned steps) {
         exit(0);
     }
 
-    // TODO:
     // It is suggested that you implement this function by changing
     // basis from B-spline to Bezier.  That way, you can just call
     // your evalBezier function.
@@ -159,7 +157,7 @@ Curve evalBspline(const vector<Vector3f> &P, unsigned steps) {
     Curve curve;
     curve.reserve((P.size() - 3) * (steps + 1));
 
-    for (unsigned i = 0; i < P.size() - 3; i++) {
+    for (unsigned i = 0; i <= P.size() - 4; i++) {
         auto controlPoints =
             vector<Vector3f>(P.cbegin() + i, P.cbegin() + i + 4);
 
@@ -167,6 +165,12 @@ Curve evalBspline(const vector<Vector3f> &P, unsigned steps) {
         auto segment =
             evalBezier(matrix2Points(geometry), steps,
                        curve.empty() ? nullopt : make_optional(curve.back().B));
+
+        // If this is not the end of the curve remove the last point, because
+        // the first point of the next segment will be the same
+        if (i < P.size() - 4) {
+            segment.pop_back();
+        }
 
         curve.insert(curve.end(), segment.begin(), segment.end());
     }
