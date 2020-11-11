@@ -63,7 +63,7 @@ Surface makeSurfRev(const Curve &profile, unsigned steps) {
         }
     }
 
-    surface.VF = makeFaces(steps, profile.size());
+    surface.VF = makeFaces(steps + 1, profile.size());
 
     return surface;
 }
