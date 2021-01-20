@@ -1,5 +1,7 @@
 #include "camera.h"
 
+#include "Matrix4f.h"
+#include "Vector3f.h"
 #include "extra.h"
 
 #include <GL/glu.h>
