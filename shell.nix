@@ -1,13 +1,17 @@
-{ pkgs ? import <nixpkgs> { } }:
+{ pkgs }:
 let
-  mkShell = pkgs.mkShell.override { stdenv = pkgs.llvmPackages_10.stdenv; };
+  inherit (pkgs) lib;
+  mkShell = pkgs.mkShell.override { stdenv = pkgs.llvmPackages_11.stdenv; };
 in
 mkShell {
-  buildInputs = with pkgs; [
-    libGL
-    libGLU
-    freeglut
+  buildInputs = lib.attrValues {
+    inherit (pkgs)
+      libGL
+      libGLU
+      freeglut
 
-    bear
-  ];
+      ccls
+      bear
+      ;
+  };
 }
