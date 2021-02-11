@@ -84,6 +84,8 @@ Surface makeGenCyl(const Curve &profile, const Curve &sweep) {
             {sweep[u].V, 1},
         };
 
+        // Explanation:
+        // https://paroj.github.io/gltut/Illumination/Tut09%20Normal%20Transformation.html
         auto normalRotation =
             coord.getSubmatrix3x3(0, 0).transposed().inverse();
 
