@@ -4,12 +4,12 @@ SHELL := bash
 
 TARGET    = a0
 
-CPPFLAGS = -I ../vecmath
+CPPFLAGS = -I../vecmath
 
 CXX      ?= clang++
 CXXFLAGS ?= -O2 -Wall -pedantic -g
 
-LDFLAGS = -L ../lib/vecmath
+LDFLAGS = -L../lib/vecmath
 LDLIBS  = -lglut -lGL -lGLU
 
 # Static Linking

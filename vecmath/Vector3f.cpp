@@ -1,9 +1,10 @@
+#include "Vector3f.h"
+
+#include "Vector2f.h"
+
 #include <cmath>
 #include <cstdio>
 #include <cstdlib>
-
-#include "Vector2f.h"
-#include "Vector3f.h"
 
 //////////////////////////////////////////////////////////////////////////
 // Public
@@ -182,7 +183,7 @@ Vector3f Vector3f::cubicInterpolate(const Vector3f &p0, const Vector3f &p1,
     // geometric construction:
     //            t
     //   (t+1)/2     t/2
-    // t+1        t	        t-1
+    // t+1        t         t-1
 
     // bottom level
     Vector3f p0p1 = Vector3f::lerp(p0, p1, t + 1);

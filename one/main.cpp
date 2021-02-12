@@ -1,3 +1,9 @@
+#include "camera.h"
+#include "curve.h"
+#include "extra.h"
+#include "parse.h"
+#include "surf.h"
+
 #ifdef WIN32
 #include <windows.h>
 #endif
@@ -10,12 +16,6 @@
 #include <fstream>
 #include <iostream>
 #include <vector>
-
-#include "camera.h"
-#include "curve.h"
-#include "extra.h"
-#include "parse.h"
-#include "surf.h"
 
 using namespace std;
 

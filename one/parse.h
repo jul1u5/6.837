@@ -1,12 +1,12 @@
 #ifndef PARSE_H
 #define PARSE_H
 
+#include "curve.h"
+#include "surf.h"
+
 #include <iostream>
 #include <string>
 #include <vector>
-
-#include "curve.h"
-#include "surf.h"
 
 /* This function implements a parser for the "SWP" file format.  It's
    something Eugene came up with specifically for this assigment.

@@ -1,13 +1,13 @@
 #include "Matrix3f.h"
 
+#include "Matrix2f.h"
+#include "Quat4f.h"
+#include "Vector3f.h"
+
 #include <cassert>
 #include <cmath>
 #include <cstdio>
 #include <cstring>
-
-#include "Matrix2f.h"
-#include "Quat4f.h"
-#include "Vector3f.h"
 
 Matrix3f::Matrix3f(float fill) {
     for (int i = 0; i < 9; ++i) {

@@ -1,11 +1,12 @@
 #ifndef CURVE_H
 #define CURVE_H
 
+#include "tuple.h"
+
 #include <vecmath.h>
 
+#include <optional>
 #include <vector>
-
-#include "tuple.h"
 
 // The CurvePoint object stores information about a point on a curve
 // after it has been tesselated: the vertex (V), the tangent (T), the
@@ -33,7 +34,8 @@ typedef std::vector<CurvePoint> Curve;
 
 // Assume number of control points properly specifies a piecewise
 // Bezier curve.  I.e., C.size() == 4 + 3*n, n=0,1,...
-Curve evalBezier(const std::vector<Vector3f> &P, unsigned steps);
+Curve evalBezier(const std::vector<Vector3f> &P, unsigned steps,
+                 const std::optional<Vector3f> &binormal = {});
 
 // Bsplines only require that there are at least 4 control points.
 Curve evalBspline(const std::vector<Vector3f> &P, unsigned steps);
